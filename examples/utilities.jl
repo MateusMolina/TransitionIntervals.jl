@@ -26,11 +26,15 @@ function verify(abstraction::TransitionIntervals.Abstraction, terminal_states::V
     mc = IntervalMarkovChain(prob, [-1])
     prop = InfiniteTimeReachAvoid(terminal_states, avoid_set, tolerance) 
     spec_low = Specification(prop, Pessimistic, Minimize)
-    problem_low = Problem(mc, spec_low)
-    Vlow, k, residual = value_iteration(problem_low)
+    problem_low = VerificationProblem(mc, spec_low)
+    sol_low = solve(problem_low)
+    # `solve` may return a tuple (value_function, strategy) or a solution object; try to extract value_function
+    Vlow = hasproperty(sol_low, :value_function) ? sol_low.value_function : sol_low[1]
+
     spec_high = Specification(prop, Optimistic, Maximize)
-    problem_high = Problem(mc, spec_high)
-    Vupp, k, residual = value_iteration(problem_high)
+    problem_high = VerificationProblem(mc, spec_high)
+    sol_high = solve(problem_high)
+    Vupp = hasproperty(sol_high, :value_function) ? sol_high.value_function : sol_high[1]
 
     result_matrix = zeros(length(Vlow), 4)
     result_matrix[:,1] = collect(1:length(Vlow))

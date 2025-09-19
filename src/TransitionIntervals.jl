@@ -18,7 +18,7 @@ using Plots
 import Plots.plot
 
 include("utilities.jl")
-export UniformError
+export UniformError, GaussianUniformError
 
 include("discretization.jl")
 export discretize
